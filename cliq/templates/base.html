@@ -28,7 +28,7 @@
                 <li><a href="{{ url_for('search') }}">Search</a></li>
                 <li><a href="{{ url_for('profile') }}">Profile</a></li>
                 <li><a href="{{ url_for('friends') }}">Friends</a></li>
-                <li><a id="requests" href="#">Requests</a></li>
+                <li><a class="requests" href="#">Requests</a></li>
                 <li><a href="{{ url_for('logout') }}">Logout</a></li>
             {% endif %}
           </ul>
@@ -41,7 +41,7 @@
             <li><a href="{{ url_for('search') }}">Search</a></li>
             <li><a href="{{ url_for('profile') }}">Profile</a></li>
             <li><a href="{{ url_for('friends') }}">Friends</a></li>
-            <li><a id="requests" href="#">Requests</a></li>
+            <li><a class="requests" href="#">Requests</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
             {% endif %}
           </ul>
@@ -67,9 +67,9 @@
             {%  endblock %}
         </div>
 
-        {% macro social_toggle(icon, toggle_name) %}
+        {% macro social_toggle(icon, toggle_name, en_class) %}
             <div class="col s1 flow-text" style="font-size:0.5em">
-                <input type="checkbox" class="filled-in req-social-toggle" id="{{ toggle_name }}" checked="checked" />
+                <input type="checkbox" class="filled-in req-social-toggle" id="{{ toggle_name }}" {{ en_class }} />
                 <label for="{{ toggle_name }}"><i class="fa {{ icon }} {{ toggle_name }}" style="font-size:1.5em"></i></label>
             </div>
         {% endmacro %}
@@ -81,19 +81,19 @@
                 loadRequests();
             });
             
-            function requestTemplate(user) {
+            function requestTemplate(user, soc) {
                 return $(`
                     <li class="collection-item avatar">
                         <img src="${user.pic}" alt="" class="circle">
                         <span class="title">${user.name}</span>
                         <p>${user.bio}</p>
-                        {{ social_toggle('fa-facebook', '${user.name}-fb') }}
-                        {{ social_toggle('fa-instagram', '${user.name}-ig') }}
-                        {{ social_toggle('fa-snapchat-ghost', '${user.name}-sc') }}
-                        {{ social_toggle('fa-twitter', '${user.name}-tw') }}
-                        {{ social_toggle('fa-linkedin', '${user.name}-li') }}
-                        {{ social_toggle('fa-phone', '${user.name}-phone') }}
-                        {{ social_toggle('fa-envelope', '${user.name}-email') }}
+                        {{ social_toggle('fa-facebook', '${user.name}-fb', '${soc[0]}') }}
+                        {{ social_toggle('fa-instagram', '${user.name}-ig', '${soc[1]}') }}
+                        {{ social_toggle('fa-snapchat-ghost', '${user.name}-sc', '${soc[2]}') }}
+                        {{ social_toggle('fa-twitter', '${user.name}-tw', '${soc[3]}') }}
+                        {{ social_toggle('fa-linkedin', '${user.name}-li', '${soc[4]}') }}
+                        {{ social_toggle('fa-phone', '${user.name}-phone', '${soc[5]}') }}
+                        {{ social_toggle('fa-envelope', '${user.name}-email', '${soc[6]}') }}
                         <a req_id="${user.request_id}" self_id="{{ session['user_id'] }}" class="accept waves-effect waves-light btn btn-small">accept</a>
                         <a req_id="${user.request_id}" self_id="{{ session['user_id'] }}" class="decline waves-effect waves-light btn btn-small red">decline</a>
                     </li>
@@ -103,8 +103,16 @@
             function loadRequests() {
                 $.get('/requests', function(requests, err) {
                     for (var req of requests) {
+                        console.log(req);
+                        var soc = req.share.split('').map(el => {
+                           if (el === '1') {
+                               return 'checked';
+                           } else {
+                               return 'disabled';
+                           }
+                        });
                         $('#modal-requests .collection').append(
-                            requestTemplate(req)    
+                            requestTemplate(req, soc)    
                         );
                     }
                     $('.accept').click(handleAccept);
@@ -112,7 +120,7 @@
                 });
             }
             
-            $('#requests').click(function() {
+            $('.requests').click(function() {
                 $('#modal-requests').modal('open')
             });
             
@@ -135,8 +143,9 @@
             }
             
             function handleDecline() {
+                var self = this;
                 $.post(`/accept/${$(this).attr('req_id')}/0`, {}, function() {
-                    $(this).closest('li').remove();
+                    $(self).closest('li').remove();
                 });
             }
         </script>
