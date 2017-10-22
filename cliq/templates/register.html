@@ -1,0 +1,42 @@
+{% extends "base.html" %} {% block content %}
+<div class="center">
+    <style>
+        button.btn-submit {
+            width: 100%;
+        }
+        .row:nth-child(1), .row:nth-child(2) {
+            margin-bottom: 0;
+        }
+    </style>
+    <h1>Register</h1>
+    <form action="/register" method="post" class="col s12" style="padding-top:25px">
+        <div class="row">
+            <div class="col s3"></div>
+            <div class="input-field col s12 m6">
+                <input id="name" name="name" type="text" class="validate" autocomplete="off" required="" aria-required="true" />
+                <label for="name">Name</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s3"></div>
+            <div class="input-field col s12 m6">
+                <input id="email" name="email" type="email" class="validate" autocomplete="off" required="" aria-required="true" />
+                <label for="email">Email</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s3"></div>
+            <div class="input-field col s12 m6">
+                <input id="password" name="password" type="password" class="validate" autocomplete="off" required="" aria-required="true" />
+                <label for="password">Password</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s3"></div>
+            <div class="col s12 m6">
+                <button class="btn-large waves-effect waves-light blue btn-submit" type="submit">Register</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

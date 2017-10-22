@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="expires" content="0">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>cliq</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Lato:400" rel="stylesheet"> 
+        <style>
+            html {
+                font-family: 'Lato', sans-serif; !important
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="light-blue lighten-1" role="navigation">
+        <div class="nav-wrapper container"><a id="logo-container" href="{{ url_for('search') }}" class="brand-logo"><i class="material-icons">people</i>cliq</a>
+          <ul class="right hide-on-med-and-down">
+            {% if not session.logged_in %}
+                <li><a href="{{ url_for('register') }}">Register</a></li>
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+            {% else %}
+                <li><a href="{{ url_for('search') }}">Search</a></li>
+                <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                <li><a href="{{ url_for('friends') }}">Friends</a></li>
+                <li><a id="requests" href="#">Requests</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            {% endif %}
+          </ul>
+
+          <ul id="nav-mobile" class="side-nav">
+            {% if not session.logged_in %}
+                <li><a href="{{ url_for('register') }}">Register</a></li>
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+            {% else %}
+            <li><a href="{{ url_for('search') }}">Search</a></li>
+            <li><a href="{{ url_for('profile') }}">Profile</a></li>
+            <li><a href="{{ url_for('friends') }}">Friends</a></li>
+            <li><a id="requests" href="#">Requests</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            {% endif %}
+          </ul>
+          
+          <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+          
+        </div>
+        </nav>
+        
+        <div id="modal-requests" class="modal bottom-sheet">
+            <div class="modal-content">
+                <h4>Requests</h4>
+                <ul class="collection">
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Done</a>
+            </div>
+        </div>
+          
+        <div class="container">
+            {%  block content %}
+            {%  endblock %}
+        </div>
+
+        {% macro social_toggle(icon, toggle_name) %}
+            <div class="col s1 flow-text" style="font-size:0.5em">
+                <input type="checkbox" class="filled-in req-social-toggle" id="{{ toggle_name }}" checked="checked" />
+                <label for="{{ toggle_name }}"><i class="fa {{ icon }} {{ toggle_name }}" style="font-size:1.5em"></i></label>
+            </div>
+        {% endmacro %}
+
+        <script>
+            $(document).ready(function() {
+                $(".button-collapse").sideNav();
+                $('#modal-requests').modal();
+                loadRequests();
+            });
+            
+            function requestTemplate(user) {
+                return $(`
+                    <li class="collection-item avatar">
+                        <img src="${user.pic}" alt="" class="circle">
+                        <span class="title">${user.name}</span>
+                        <p>${user.bio}</p>
+                        {{ social_toggle('fa-facebook', '${user.name}-fb') }}
+                        {{ social_toggle('fa-instagram', '${user.name}-ig') }}
+                        {{ social_toggle('fa-snapchat-ghost', '${user.name}-sc') }}
+                        {{ social_toggle('fa-twitter', '${user.name}-tw') }}
+                        {{ social_toggle('fa-linkedin', '${user.name}-li') }}
+                        {{ social_toggle('fa-phone', '${user.name}-phone') }}
+                        {{ social_toggle('fa-envelope', '${user.name}-email') }}
+                        <a req_id="${user.request_id}" self_id="{{ session['user_id'] }}" class="accept waves-effect waves-light btn btn-small">accept</a>
+                        <a req_id="${user.request_id}" self_id="{{ session['user_id'] }}" class="decline waves-effect waves-light btn btn-small red">decline</a>
+                    </li>
+                `)
+            }
+            
+            function loadRequests() {
+                $.get('/requests', function(requests, err) {
+                    for (var req of requests) {
+                        $('#modal-requests .collection').append(
+                            requestTemplate(req)    
+                        );
+                    }
+                    $('.accept').click(handleAccept);
+                    $('.decline').click(handleDecline);
+                });
+            }
+            
+            $('#requests').click(function() {
+                $('#modal-requests').modal('open')
+            });
+            
+            function handleAccept() {
+                var bool = '';
+                var self = this;
+                $('.req-social-toggle').each(function() {
+                    if ($(self)[0].checked) {
+                        bool += '1';
+                    } else {
+                        bool += '0';
+                    }
+                });
+                console.log($(self).attr('self_id'))
+                $.post(`/accept/${$(self).attr('req_id')}/1`, {}, function() {
+                    $.post(`/interact/${$(self).attr('self_id')}/${$(self).attr('req_id')}/${bool}`, {}, function() {
+                        $(self).closest('li').remove();
+                    });
+                });
+            }
+            
+            function handleDecline() {
+                $.post(`/accept/${$(this).attr('req_id')}/0`, {}, function() {
+                    $(this).closest('li').remove();
+                });
+            }
+        </script>
+{% block scripts %}{% endblock %}
+{% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}<script>Materialize.toast("{{message}}", 4000)</script>{% endfor %}{% endif %}{% endwith %}
+    </div></body>
+</html>
+

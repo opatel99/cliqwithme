@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+.fa {
+    font-size: 2em;
+    vertical-align: middle;
+}
+.fb {
+    color: #3b5998;
+}
+.ig {
+    color: #8a3ab9;
+}
+.sc {
+    color: #000000;
+}
+.tw {
+    color: #1da1f2;
+}
+.li {
+    color: #0077b5;
+}
+.phone {
+    color: #68217a;
+}
+.email {
+    color: #239ab9;
+}
+</style>
+
+{% macro social(icon, toggle_name) %}
+<div class="row">
+    <div class="col s1"></div>
+    <div class="col s2"><i class="fa {{ icon }} {{ toggle_name }}"></i> </div>
+    <div class="col s4">
+        <a id="usr-{{ toggle_name }}" href="" class="font-black"></a>
+    </div>
+    <br>
+</div>
+{% endmacro %}
+
+<div class="row" style="margin-top:5rem">
+    {% for friend in friends %}
+        <div class="col s12 m6 l3 card-container">
+            <div class="card">
+                <prop style="display:none;" fb="{{ friend.socMedia[0] }}" 
+                ig="{{ friend.socMedia[1] }}" sc="{{ friend.socMedia[2] }}" 
+                tw="{{ friend.socMedia[3] }}" li="{{ friend.socMedia[4] }}" 
+                p="{{ friend.socMedia[5] }}" e="{{ friend.socMedia[6] }}" 
+                bio="{{friend.bio}}" id="{{friend.id}}"></prop>
+                <div class="card-image">
+                    <img src="{{ friend.pic }}">
+                    <span class="card-title card-name">{{ friend.name }}</span>
+                    <a class="btn-floating btn-large halfway-fab waves-effect waves-light blue open-modal"><i class="material-icons">share</i></a>
+                </div>
+                <div class="card-content flow-text">
+                    <p>VU {{ friend.year }}, {{ friend.major }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div id="modal-friend" ownid="{{session['user_id']}}" otherid="" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h4 id="modal-user-name"></h4>
+        
+        <div class="row valign-wrapper">
+            <div class="col s2">
+                <img id="modal-user-image" src="" alt="" class="circle responsive-img">
+            </div>
+            <div class="col s9">
+                <h5 id="modal-user-major"></h5>
+                <p id="modal-user-bio"></p>
+            </div>
+        </div>
+        
+        <div class="row">
+            {{ social('fa-facebook', 'fb') }}
+            {{ social('fa-instagram', 'ig') }}
+            {{ social('fa-snapchat-ghost', 'sc') }}
+            {{ social('fa-twitter', 'tw') }}
+            {{ social('fa-linkedin', 'li') }}
+            {{ social('fa-phone', 'phone') }}
+            {{ social('fa-envelope', 'email') }}
+        </div>
+        
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+    </div>
+</div>
+
+<script>
+    $('.open-modal').mousedown(function() {
+        var card = $(this).closest('.card');
+        $('#modal-friend').modal('open');
+        $('#modal-user-name').text($(card).find('.card-name').text());
+        $('#modal-user-image')[0].src = $(card).find('img')[0].src;
+        $('#modal-user-major').text($(card).find('p').text());
+        $('#modal-user-bio').text($(card).find('prop').attr('bio'));
+        $('#modal-friend').attr('otherid', $(card).find('prop').attr('id'));
+        
+        var prop = $(card).find('prop');
+        var socNames = ['fb', 'ig', 'sc', 'tw', 'li', 'phone', 'email'];
+        var soc = [
+            prop.attr('fb'),
+            prop.attr('ig'),
+            prop.attr('sc'),
+            prop.attr('tw'),
+            prop.attr('li'),
+            prop.attr('p'),
+            prop.attr('e'),
+        ];
+        var socHref = [
+            `https://facebook.com/${prop.attr('fb')}`,
+            `https://instagram.com/${prop.attr('ig')}`,
+            `https://snapchat.com/add/${prop.attr('sc')}`,
+            `https://twitter.com/${prop.attr('tw')}`,
+            `https://linkedin.com/in/${prop.attr('li')}`,
+            `tel:${prop.attr('p')}`,
+            `mailto:${prop.attr('e')}`,
+        ];
+        
+        
+        for (var i = 0; i < soc.length; ++i) {
+            if (soc[i]) {
+                $(`#usr-${socNames[i]}`).text(soc[i]);
+                $(`#usr-${socNames[i]}`).attr('href', socHref[i]);
+                $(`.${socNames[i]}`).closest('.row').show();
+                
+            } else {
+                $(`.${socNames[i]}`).closest('.row').hide();
+            }
+        }
+    });
+    
+    $(document).ready(function(){
+        $('#modal-friend').modal();
+    });
+</script>
+{% endblock %}

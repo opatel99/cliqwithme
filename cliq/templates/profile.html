@@ -1,0 +1,73 @@
+{% extends "base.html" %} {% block content %}
+<div class="center">
+  <h1><a><img width="100" src="{{user.pic}}"></a><br>{{user.name}}</h1>
+
+
+  <form action="/profile" method="post" class="col s12" style="padding-top:25px">
+    <div class="row">
+      <div class="input-field col s3">
+        <input value="{{ user.year }}" id="year" name="year" type="number" class="validate" />
+        <label for="year">Year</label>
+      </div>
+      <div class="input-field col s3">
+        <input value="{{ user.major }}" id="major" name="major" type="text" class="validate" />
+        <label for="major">Major</label>
+      </div>
+
+      <div class="input-field col s6">
+        <input value="{{ user.bio }}" id="bio" name="bio" type="text" class="validate" />
+        <label for="bio">Bio</label>
+      </div>
+      <div class="col s3"></div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <input value="{{ user.phone }}" id="phone" name="phone" type="tel" class="validate" autocomplete="off" required="" aria-required="true" />
+        <label for="phone">Phone Number</label></div>
+      <div class="input-field col s6">
+        <input disabled value="{{ user.email }}" id="email" name="email" type="email" class="validate" autocomplete="off" required="" aria-required="true" />
+        <label for="email">Email</label></div>
+    </div>
+
+    <div class="row">
+      <div class="col s1"></div>
+      <div class="input-field col s2">
+        <input value="{{ user.facebook }}" id="fb" name="fb" type="text" class="validate" autocomplete="off"/>
+        <label for="fb">Facebook</label>
+      </div>
+      <div class="input-field col s2">
+        <input value="{{ user.twitter }}" id="tw" name="tw" type="text" class="validate" autocomplete="off"/>
+        <label for="tw">Twitter</label>
+      </div>
+      <div class="input-field col s2">
+        <input value="{{ user.instagram }}" id="ig" name="ig" type="text" class="validate" autocomplete="off"/>
+        <label for="ig">Instagram</label></div>
+      <div class="input-field col s2">
+        <input value="{{ user.snapchat }}" id="sc" name="sc" type="text" class="validate" autocomplete="off"/>
+        <label for="sc">Snapchat</label></div>
+      <div class="input-field col s2">
+        <input value="{{ user.linkedin }}" id="li" name="li" type="text" class="validate" autocomplete="off"/>
+        <label for="li">LinkedIn</label></div>
+
+    </div>
+
+    <div class="row">
+      <button class="btn-large waves-effect waves-light blue">Update</button>
+    </div>
+
+  </form>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Materialize.toast("Profile successfully updated.", 4000);
+
+$(document).ready(function() {
+  Materialize.updateTextFields();
+});
+        
+</script>
+{% endblock %}

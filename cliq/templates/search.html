@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+.input-field {
+    margin-top: 5rem;
+}
+.fa {
+    font-size: 2em;
+    vertical-align: middle;
+}
+input:checked ~ .fb {
+    color: #3b5998;
+}
+input:checked ~ .ig {
+    color: #8a3ab9;
+}
+input:checked ~ .sc {
+    color: #000000;
+}
+input:checked ~ .tw {
+    color: #1da1f2;
+}
+input:checked ~ .li {
+    color: #0077b5;
+}
+input:checked ~ .phone {
+    color: #68217a;
+}
+input:checked ~ .email {
+    color: #239ab9;
+}
+</style>
+
+{% macro social_toggle(icon, toggle_name) %}
+<div class="col s1"></div>
+<div class="col s11">
+    <div id="{{ toggle_name }}-toggle" class="switch">
+        <label>
+            <input class="social-toggle" type="checkbox">
+            <span class="lever"></span>
+            <i class="fa {{ icon }} {{ toggle_name }}"></i>
+        </label>
+    </div>
+</div>
+<br>
+{% endmacro %}
+
+<div class="row">
+    <div class="col s3"></div>
+    <div class="input-field col s12 m6">
+      <input id="search" type="text" autocomplete="off">
+      <label for="search">Search</label>
+    </div>
+</div>
+
+<div class="row">
+    {% for user in users %}
+        <div class="col s12 m6 l3 card-container">
+            <div class="card">
+                <prop style="display:none;" bio="{{user.bio}}" id="{{user.id}}"></prop>
+                <div class="card-image">
+                    <img src="{{ user.pic }}">
+                    <span class="card-title card-name">{{ user.name }}</span>
+                    <a class="btn-floating btn-large halfway-fab waves-effect waves-light red open-modal"><i class="material-icons">add</i></a>
+                </div>
+                <div class="card-content flow-text">
+                    <p>VU {{ user.year }}, {{ user.major }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div id="modal-add" ownid="{{session['user_id']}}" otherid="" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h4 id="modal-user-name"></h4>
+        
+        <div class="row valign-wrapper">
+            <div class="col s2">
+                <img id="modal-user-image" src="" alt="" class="circle responsive-img">
+            </div>
+            <div class="col s9">
+                <h5 id="modal-user-major"></h5>
+                <p id="modal-user-bio"></p>
+            </div>
+        </div>
+        
+        <div class="row flow-text">
+            {{ social_toggle('fa-facebook', 'fb') }}
+            {{ social_toggle('fa-instagram', 'ig') }}
+            {{ social_toggle('fa-snapchat-ghost', 'sc') }}
+            {{ social_toggle('fa-twitter', 'tw') }}
+            {{ social_toggle('fa-linkedin', 'li') }}
+            {{ social_toggle('fa-phone', 'phone') }}
+            {{ social_toggle('fa-envelope', 'email') }}
+        </div>
+        
+        <div class="row">
+            <div class="col s1"></div>
+            <a id="submit-request" class="waves-effect waves-light btn disabled">Request</a>
+        </div>
+        
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+    </div>
+</div>
+
+<script>
+    $('#search').on('keyup', function() {
+        var m_search = this.value.toLowerCase();
+        var cards = $('.card-container');
+        var names = $('.card-name');
+        for (var i = 0; i < cards.length; ++i) {
+           name = $(names[i]).text().toLowerCase();
+           if (name.indexOf(m_search) !== -1) {
+               $(cards[i]).show();
+           } else {
+               $(cards[i]).hide();
+           }
+        }
+    });
+    
+    function verifyRequest() {
+        if ($.makeArray($('.social-toggle')).some(el => $(el)[0].checked)) {
+            $('#submit-request').removeClass('disabled');
+        } else {
+            $('#submit-request').addClass('disabled');
+        }
+    }
+    
+    $('.social-toggle').click(verifyRequest);
+    
+    $('#submit-request').on('click', function() {
+        var mod = $('#modal-add');
+        var bool = '';
+        $('.social-toggle').each(function() {
+            if ($(this)[0].checked) {
+                bool += '1';
+            } else {
+                bool += '0';
+            }
+        });
+        if (!$(this).hasClass('disabled')) {
+            $.post(`/interact/${mod.attr('ownid')}/${mod.attr('otherid')}/${bool}`, {}, function() {
+                $('.social-toggle').prop('checked', false);
+                $('#modal-add').modal('close');
+            });
+        }
+    });
+    
+    $('.open-modal').mousedown(function() {
+        var card = $(this).closest('.card');
+        $('#modal-add').modal('open');
+        $('#modal-user-name').text($(card).find('.card-name').text());
+        $('#modal-user-image')[0].src = $(card).find('img')[0].src;
+        $('#modal-user-major').text($(card).find('p').text());
+        $('#modal-user-bio').text($(card).find('prop').attr('bio'));
+        $('#modal-add').attr('otherid', $(card).find('prop').attr('id'));
+    });
+    
+    $(document).ready(function(){
+        $('#modal-add').modal();
+    });
+</script>
+{% endblock %}

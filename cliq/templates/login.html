@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+    <style>
+        button.btn-submit {
+            width: 100%;
+        }
+        .row:first-of-type {
+            margin-bottom: 0;
+        }
+    </style>
+    <div class="center">
+        <h1>Login</h1>
+        <form action="/login" method="post" class="col s12" style="padding-top:25px">
+            <div class="row">
+                <div class="col s3"></div>
+                <div class="input-field col s12 m6">
+                    <input id="email" name="email" type="email" class="validate" autocomplete="off" required="true" aria-required="true"/>
+                    <label for="email">Email</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s3"></div>
+                <div class="input-field col s12 m6">
+                    <input id="password" name="password" type="password" class="validate" autocomplete="off" required="true" aria-required="true"/>
+                    <label for="password">Password</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s3"></div>
+                <div class="col s12 m6">
+                    <button class="btn-large waves-effect waves-light blue btn-submit" type="submit">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
